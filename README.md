@@ -1,54 +1,40 @@
-# **PQ - Post Quantum Ecosystem**
+# **PQ — Post-Quantum Ecosystem**
+
 An Open Standard for Post-Quantum Deterministic Security
 
 ### Architecture & Integration Specification v1.0.0
+
 **Author:** rosiea
 **Contact:** [PQRosie@proton.me](mailto:PQRosie@proton.me)
 **Status:** Implementation Ready. Integration Test Required.
-**Date:** November 2025
+**Date:** December 2025
 **Licence:** Apache License 2.0 — Copyright 2025 rosiea
-
 
 ---
 
 ## **1. Abstract**
 
+The PQ Ecosystem defines a unified, deterministic, post-quantum authority architecture for securing modern systems against quantum attack, seed theft, runtime compromise, replay, policy drift, and unbounded AI behaviour. Rather than layering post-quantum cryptography onto existing trust assumptions, the PQ Ecosystem redefines **time, intent, policy, runtime integrity, custody, and AI alignment** as explicit, verifiable protocol primitives.
 
-The PQ Ecosystem introduces the first unified, deterministic, post-quantum authority architecture designed to secure modern systems against quantum attack, seed theft, runtime compromise, replay, and unbounded AI behaviour. Rather than adding post-quantum cryptography to existing trust assumptions, the Ecosystem redefines time, intent, policy, runtime integrity, and AI alignment as explicit, verifiable protocol primitives.
+At the core of this architecture is a shift from *assumed trust* to *cryptographically enforced predicates*. Every sensitive operation—including signing, inference, delegation, recovery, governance, and policy modification—MUST satisfy deterministic requirements for verified time, explicit consent, canonical policy evaluation, runtime integrity, device identity, ledger continuity, and structural validity. Implicit boundaries such as operating-system trust, local clocks, UI correctness, coordinator behaviour, and AI reasoning are replaced by reproducible, protocol-level conditions.
 
-At the core of this architecture is a shift from assumed trust to cryptographically enforced predicates. Every sensitive operation, including signing, inference, recovery, delegation, and policy updates, must satisfy deterministic requirements for time, consent, policy, runtime integrity, device state, ledger continuity, and structure validity. This converts previously implicit boundaries such as OS integrity, local time, UI trust, coordinator behaviour, and AI reasoning into explicit, reproducible, protocol-level conditions.
+The ecosystem consists of interoperable modules: **Epoch Clock** for verifiable time, **PQSF** for deterministic transport and encoding, **PQVL** for runtime integrity verification, **PQHD** for post-quantum custody, and **PQAI** for deterministic and drift-checked AI behaviour. These modules provide protocol-layer validation without altering existing Internet or Bitcoin consensus protocols and support online, offline, air-gapped, and sovereign deployments.
 
-The Ecosystem is built from interoperable modules: Epoch Clock for verifiable time, PQSF for deterministic transport and encoding, PQVL for runtime integrity verification, PQHD for seed-theft-immune digital asset custody, and PQAI for deterministic and drift-checked AI behaviour. These components operate together to provide protocol-layer validation of time, consent, policy, runtime state, inference safety, and signing authority without altering existing internet or Bitcoin consensus protocols. The model supports online, offline, air-gapped, and fully sovereign deployments, and enables incremental adoption within IETF-aligned frameworks.
+Custody guarantees within the PQ Ecosystem are explicitly tiered. References to “PQHD Custody” apply only to formally defined custody tiers and MUST NOT be interpreted to include non-custodial transactional profiles.
 
-This architecture enables:
-
-transport-agnostic protocol security through deterministic time, consent, and policy
-
-deterministic, cryptographically bounded AI behaviour
-
-runtime-integrity gating through mandatory PQVL attestation
-
-quantum-safe custody that remains secure under full classical seed exposure
-
-a unified privacy, sovereignty, and security model across all protocol layers
-
-The result is an ecosystem that is simultaneously quantum-safe, seed-theft-immune, AI-drift-resistant, runtime-verified, offline-capable, sovereignty-preserving, and deterministic across implementations. It provides the first coherent post-quantum authority architecture for modern distributed systems.
+---
 
 ## **2. Introduction**
 
-Modern digital security is failing under quantum threat, seed theft, replay, runtime compromise, and uncontrolled AI behaviour. Across existing systems, critical trust anchors such as local time, OS integrity, coordinator behaviour, user intent, AI reasoning, and private key control are implicit or assumed rather than cryptographically enforced.
+Modern digital security systems rely on implicit trust in local time, operating-system integrity, coordinator correctness, private-key secrecy, and AI behaviour. These assumptions are increasingly invalid under quantum threat, large-scale seed compromise, runtime exploitation, replay attacks, and adaptive AI systems.
 
-The PQ Ecosystem resolves this by converting each of these domains into explicit, verifiable protocol primitives. Time, consent, policy, runtime integrity, inference safety, and device identity become deterministic structures with strict, normative definitions rather than assumptions embedded in OS behaviour, application code, or user interfaces.
+The PQ Ecosystem resolves these failures by converting each trust domain into a deterministic protocol primitive. Time, consent, policy, runtime integrity, custody, and AI behaviour are defined as canonical structures with strict normative semantics rather than emergent properties of software or infrastructure.
 
-This produces a full-stack, audit-ready authority architecture in which all sensitive operations, including signing, inference, delegation, recovery, and governance, must satisfy a unified set of cryptographic predicates. A system cannot proceed under stale time, unverified runtime, unsafe AI behaviour, compromised device state, or policy drift. Previously invisible trust boundaries are replaced by enforceable protocol rules that operate consistently across devices, platforms, and deployments.
-
-The result is a sovereignty-preserving security foundation that remains interoperable with existing internet infrastructure, Bitcoin consensus, and classical application flows while providing a post-quantum, deterministic authority layer across all environments, including offline and air-gapped systems.
+This produces a full-stack, audit-ready authority architecture in which no sensitive operation can proceed unless all required predicates are satisfied. The result is a sovereignty-preserving, post-quantum authority layer that remains interoperable with existing networks while eliminating entire classes of structural attacks.
 
 ---
 
 # **3. Architecture Overview**
-
-The PQ Ecosystem has five integrated layers:
 
 ```
         ┌───────────────────────────────────────────┐
@@ -62,20 +48,17 @@ The PQ Ecosystem has five integrated layers:
                      │              │
              ┌───────┴──────────────┴──────────────┐
              │                 PQSF                 │
-             │ (Shared transport, encoding, KDF,    │
-             │  ledger, policy, authority rules)    │
+             │ (Transport, Encoding, Policy, Ledger │
+             │  Authority Rules)                     │
              └────────────┬────────────┬───────────┘
                           │            │
                    ┌──────┘            └────────┐
                    │                             │
          ┌─────────┴─────────┐        ┌──────────┴───────────┐
          │       PQHD        │        │         PQAI          │
-         │  Multi-Predicate  │        │ Deterministic, Drift   │
-         │      Custody      │        │       Immune AI        │
+         │  Custody Authority│        │ Deterministic AI      │
          └───────────────────┘        └────────────────────────┘
 ```
-
-Each module enforces strict invariants and contributes to the global authority model.
 
 ---
 
@@ -83,52 +66,50 @@ Each module enforces strict invariants and contributes to the global authority m
 
 ## **4.1 Privacy**
 
-* deterministic CBOR/JCS encoding eliminates metadata leaks
-* no user identifiers in ticks, ledger entries, device attestations
-* offline & STP modes provide surveillance-immune operation
-* identity vault stores no plaintext secrets
+* Deterministic CBOR/JCS encoding eliminates metadata leakage
+* No user identifiers embedded in ticks, ledgers, or attestations
+* Offline and STP modes provide surveillance-resistant operation
+* Identity vaults store no plaintext secrets
 
 ## **4.2 Sovereignty**
 
 * Bitcoin-anchored time (no NTP/DNS trust)
-* offline & air-gapped operation
-* device-attested authority
-* user-authored policy & guardianship
-* no dependency on third-party identity providers
+* Offline and air-gapped operation
+* Device-attested authority
+* User-authored policy and guardianship
+* No dependency on third-party identity providers
 
 ## **4.3 Security**
 
-* PQ cryptography (ML-DSA-65, ML-KEM-1024)
-* replay-impossible temporal model
-* multi-predicate custody (tick + consent + policy + device + PSBT + ledger)
-* runtime-integrity enforcement (PQVL)
-* AI drift prevention and behavioural fingerprinting
+* Post-quantum cryptography (ML-DSA-65, ML-KEM-1024)
+* Replay-impossible temporal model
+* Multi-predicate authority enforcement
+* Mandatory runtime integrity (PQVL)
+* Deterministic AI alignment and drift control
 
 ---
 
-# **5. Global Invariants (Normative)**
-
-Across all modules, the following invariants apply:
+# **5. Global Invariants (NORMATIVE)**
 
 5.1 Time MUST be Epoch-Clock verified
-
 5.2 Authority MUST require explicit, tick-fresh consent
-
-5.3 All policies MUST be deterministic & canonical
-
-5.4 Runtime MUST be integrity-verified before any sensitive operation
-
+5.3 Policies MUST be deterministic and canonical
+5.4 Runtime MUST be integrity-verified before sensitive operations
 5.5 Wallet custody MUST be multi-predicate
 
-5.6 AI inference MUST be aligned & drift-checked
+**5.5.1 Custody Tier Declaration (NORMATIVE)**
+Any reference to “PQHD Custody” MUST explicitly declare the custody tier: **Baseline** or **Enterprise**.
 
-5.7 Serialization MUST be deterministic
+**5.5.2 Non-Custodial Profiles (NORMATIVE)**
+Transactional Profiles are non-custodial and MUST NOT be represented, marketed, or substituted as PQHD Custody.
 
+5.6 AI inference MUST be aligned and drift-checked
+5.7 Serialisation MUST be deterministic
 5.8 Failure MUST be fail-closed
 
-5.9 Multi-Predicate Authority Model
+## **5.9 Multi-Predicate Authority Model (NORMATIVE)**
 
-Operations MAY proceed only when **all** succeed:
+Operations MAY proceed only when all predicates succeed:
 
 * valid_tick
 * valid_consent
@@ -142,39 +123,78 @@ Operations MAY proceed only when **all** succeed:
 
 Any failure MUST fail-closed.
 
+## **5.10 Custody Qualification & Marketing Rules (NORMATIVE)**
+
+The Post-Quantum Security Framework (PQSF) defines the authoritative custody qualification tiers and marketing restrictions for all PQ modules. These definitions override any informal, marketing, or implementation-specific descriptions.
+
+* Any reference to “PQHD Custody” MUST explicitly declare the custody tier (Baseline or Enterprise).
+* Transactional Profile configurations are non-custodial and MUST NOT be represented, marketed, or substituted as PQHD Custody.
+* Implementations claiming PQHD Custody MUST be able to demonstrate predicate completeness and tier conformance under deterministic validation.
+
 ---
 
 # **6. Temporal Authority (Epoch Clock)**
 
-The Epoch Clock provides the canonical post-quantum temporal authority for all modules.
-(Full normative content from the Epoch Clock spec is referenced; umbrella spec includes the invariants only.)
+The Epoch Clock is the canonical post-quantum temporal authority for the PQ Ecosystem.
 
 Core properties:
 
-* ML-DSA-65-signed ticks
-* strict monotonicity
+* ML-DSA-65 signed ticks
+* Strict monotonicity
 * ≤900-second freshness
-* deterministic encoding (JCS/CBOR)
+* Deterministic encoding
 * Bitcoin-anchored profile lineage
-* mirror-verified distribution
-* offline reuse rules
+* Mirror-verified distribution
+* Offline reuse rules
 
-**Normative:**
-Systems MUST reject stale, decreasing, malformed, or replayed ticks.
-All modules MUST use EpochTick semantics for validity windows.
+All modules MUST reject stale, decreasing, malformed, or replayed ticks.
 
----
+## **6.1 Profile Reference (NORMATIVE)**
 
-## 6.1 Profile Reference
+```
+pinned_profile_ref =
+ordinal:439d7ab1972803dd984bf7d5f05af6d9f369cf52197440e6dda1d9a2ef59b6ebi0
+```
 
-The canonical Epoch Clock v2 profile for this specification is:
-
-pinned_profile_ref = "ordinal:439d7ab1972803dd984bf7d5f05af6d9f369cf52197440e6dda1d9a2ef59b6ebi0"
-
-This corresponds to Inscription 111633444.
+Corresponds to Inscription **111633444**.
 
 All PQ modules (PQSF, PQHD, PQVL, PQAI) MUST validate EpochTicks against this pinned profile_ref. Any tick referencing a different profile MUST be rejected and MUST cause immediate fail-closed behaviour across all dependent predicates.
 
+## **6.2 Mirror Authentication & Pinning (NORMATIVE)**
+
+* Mirrors MUST sign responses (`sig_mirror`, ML-DSA-65).
+* Clients MUST verify `sig_mirror` and MUST pin `mirror_pubkey`.
+* Mirror responses without a valid signature MUST be discarded.
+* Changes to `mirror_pubkey` are security-relevant and MUST trigger fail-closed re-evaluation of the temporal authority chain.
+
+## **6.3 Bootstrap Procedure & Failure Semantics (NORMATIVE)**
+
+Bootstrap sequence:
+
+1. Load embedded genesis profile.
+2. Fetch current profile via on-chain reference (mandatory).
+3. Use mirrors as retrieval hints only.
+
+Bootstrap failure (including profile mismatch, invalid lineage, canonical encoding error, or signature failure) MUST be treated as fail-closed. No sensitive operation may proceed.
+
+## **6.4 Profile Governance & Rotation (NORMATIVE)**
+
+Profile rotation is governed by `emergency_quorum` and a quorum threshold:
+
+* `quorum_threshold = floor(2/3 * active_guardians) + 1`
+
+Rotation triggers include governance expiry, emergency conditions, or integrity events. Promotion and validation MUST be fail-closed and MUST preserve pinned-profile lineage semantics as defined in the Epoch Clock specification.
+
+## **6.5 Error Recovery Procedures (NORMATIVE)**
+
+Consuming systems MUST implement mandated recovery flows for:
+
+* mirror divergence
+* tick expiry
+* profile mismatch
+* canonical encoding errors
+
+A normative error code set is defined by the Epoch Clock specification. All such errors MUST be treated as fail-closed and MUST block sensitive operations until recovery completes.
 
 ---
 
@@ -190,29 +210,30 @@ ConsentProof binds:
 * device_attestation
 * multisig context
 
-Consent MUST be:
+Consent MUST be explicit, canonical, tick-fresh, and non-reusable.
 
-* explicit
-* tick-fresh
-* canonical
-* non-reusable
+## **7.1 Optional OOB Confirmation (KeyMail) (INFORMATIVE)**
+
+KeyMail provides a second independent confirmation path for high-risk operations.
+
+* KeyMail messages are tick-bound, consent-bound, and authenticated via ML-DSA-65.
+* Usage is optional but RECOMMENDED for governance, recovery, and large-value transactions.
+* KeyMail MUST NOT replace primary ConsentProof; it serves as a supplemental OOB channel.
 
 ---
 
 # **8. Policy Authority (Policy Enforcer)**
 
-Defines deterministic policy including:
+Policies define deterministic authorisation rules including:
 
 * allow/deny lists
 * thresholds
 * delays and time windows
 * anomaly rules
-* tick freshness
-* role/quorum state
+* tick freshness requirements
+* role and quorum state constraints
 
-Policies MUST bind to a canonical policy_hash.
-
-Evaluation MUST be deterministic.
+Policies MUST bind to a canonical `policy_hash`. Evaluation MUST be deterministic across compliant implementations.
 
 ---
 
@@ -221,23 +242,30 @@ Evaluation MUST be deterministic.
 PQVL provides:
 
 * system/process/policy/integrity probes
-* drift classification (NONE/WARNING/CRITICAL)
+* drift classification (NONE / WARNING / CRITICAL)
 * AttestationEnvelope with ML-DSA-65 signatures
 * tick-bound freshness rules
-* canonical encoding
+* canonical encoding requirements
 
-PQVL failures MUST cause:
-**valid_runtime = false**.
+PQVL failures MUST cause `valid_runtime = false`.
+
+## **9.1 Device Identity Models (NORMATIVE)**
+
+PQVL defines two device identity models:
+
+1. **DeviceIdentity_PQVL** — derived from PQVL attestation public key + measurement hashes.
+2. **DeviceIdentity_Minimal** — fallback identity based on device-bound PQHD key.
+
+**Selection Precedence (NORMATIVE):**
+Implementations MUST prefer `DeviceIdentity_PQVL` when available. If PQVL is unavailable or attestation fails, `DeviceIdentity_Minimal` MUST be used, and `valid_runtime` MUST be set to `false`.
 
 ---
 
 # **10. Custody Authority (PQHD)**
 
-PQHD defines a custody model where:
+Private keys never grant spending authority on their own.
 
-**private keys never grant spending authority on their own.**
-
-Authority requires all predicates:
+Authority requires:
 
 * valid_tick
 * valid_consent
@@ -247,7 +275,34 @@ Authority requires all predicates:
 * valid_ledger
 * valid_psbt
 
-PQHD provides seed-theft-immune custody and Secure Import.
+## **10.1 PQHD Custody Conformance Tiers (NORMATIVE)**
+
+### **PQHD Custody (Baseline)**
+
+Minimum conformance tier. Requires multi-device quorum (≥2), mandatory PQVL attestation, canonical PSBT validation, ConsentProof, deterministic policy enforcement, ledger continuity, and irreversible destruction of ephemeral signing keys after use.
+
+### **PQHD Custody (Enterprise)**
+
+Extends Baseline with guardian governance, deterministic delays, formal Recovery Capsules, emergency clock governance, cross-device reconciliation, and institutional auditability.
+
+### **Transactional Profile (Non-Custodial)**
+
+Single-device configuration. MAY implement canonical structures but fails under single-device compromise and MUST NOT be represented as PQHD Custody.
+
+### **Minimum Security Rule (NORMATIVE)**
+
+A system MUST be conformant to at least **PQHD Custody (Baseline)** to make any of the following security claims:
+
+1. **Enforced ephemeral key destruction**
+   Signing keys are irreversibly destroyed after use.
+
+2. **Non-replaceable signing authority**
+   A stolen seed cannot be used to create a new, compliant signing device.
+
+3. **Operational post-quantum mitigation**
+   The system’s security properties remain intact under a defined quantum computing threat model.
+
+The term *“Reduced Custody”* is deprecated and MUST NOT be used.
 
 ---
 
@@ -255,36 +310,30 @@ PQHD provides seed-theft-immune custody and Secure Import.
 
 PQAI enforces:
 
-* model-profile validation
+* ModelProfile validation
 * alignment freshness
 * runtime integrity via PQVL
 * behavioural fingerprinting
-* deterministic safe-prompt evaluation
+* deterministic SafePrompt evaluation
 
-Inference MUST only proceed under:
+Inference MUST only proceed when:
 
 * drift_state == NONE
-* fresh alignment_tick
-* valid_runtime
-* canonical safe-prompt
+* alignment_tick is fresh
+* valid_runtime is true
 
 ---
 
 # **12. Deterministic Transport**
 
-Transport MUST be:
+Transport MUST be deterministic, exporter-bound, replay-resistant, and canonical.
 
-* deterministic
-* exporter-bound
-* replay-resistant
-* canonical
-
-PQ Ecosystem transports:
+Supported transports:
 
 * TLSE-EMP
 * STP
 
-Transport MUST fail-closed on any mismatch.
+Transport failures MUST be fail-closed.
 
 ---
 
@@ -293,12 +342,12 @@ Transport MUST fail-closed on any mismatch.
 The deterministic Merkle ledger MUST support:
 
 * canonical entries
-* append-only
+* append-only behaviour
 * monotonic tick ordering
 * reconciliation
 * freeze-on-failure
 
-Ledger is used by PQSF, PQHD, PQVL, PQAI.
+Used by PQSF, PQHD, PQVL, and PQAI.
 
 ---
 
@@ -306,7 +355,7 @@ Ledger is used by PQSF, PQHD, PQVL, PQAI.
 
 Identity vault uses:
 
-* ML-KEM for vault encryption
+* ML-KEM vault encryption
 * deterministic credential derivation
 * selective disclosure
 * tick-bound authentication
@@ -315,300 +364,315 @@ No plaintext secrets MAY exist.
 
 ---
 
-# **ANNEX A — Security & Attack Surface Analysis**
-*(Informative)*
+# **15. Implementation Compliance & Conformance**
 
-The PQ Ecosystem is designed to eliminate or significantly reduce known attack surfaces across internet protocols, transport layers, runtime environments, operating systems, digital asset custody, identity frameworks, cloud infrastructure, AI behaviour, hardware, physical-world interfaces, and critical-infrastructure/military systems.
-This annex enumerates those attack surfaces, quantifies the reduction or elimination achieved, and identifies the cryptographic or deterministic mechanisms responsible.
+## **15.1 PQSF Compliance Tiers (NORMATIVE)**
 
-## **A.0 Security Uplift Summary (Informative)**
+Implementations MUST declare one of the following compliance levels:
 
-This annex is Informative. The classifications and reductions described here apply
-to the PQ Ecosystem when all normative invariants defined in this specification
-are correctly implemented.
+* **MVP** — Implements only normative PQSF transport, encoding, and tick validation.
+* **FULL** — Implements all PQSF modules (transport, policy, ledger, identity).
+* **EXTENDED** — FULL plus optional extensions (KeyMail, delegated credentials, advanced policy).
 
-“Structurally Eliminated” means the attack cannot occur within the protocol
-model without violating a mandatory invariant such as tick monotonicity,
-canonical encoding, predicate completeness, or fail-closed behaviour. This term
-describes the security properties of the model; it does not guarantee the
-absence of implementation defects.
+## **15.2 Compliance Manifest (NORMATIVE)**
 
-Percentage ranges (e.g., “Reduced 60–80%”) are analytical estimates used for
-relative comparison across attack classes. They are not empirical measurements
-and are provided to help implementers understand where the protocol produces
-hard eliminations versus partial reductions. Real-world security depends on
-correct implementation, environment, and operational practices.
+A signed, canonical `ComplianceManifest` structure MUST be produced containing:
 
+* `compliance_level`
+* `module_versions`
+* `profile_ref` (pinned Epoch Clock profile reference)
+* `manifest_signature` (ML-DSA-65)
 
-### **Per-Attack Uplift Summary**
-(All elimination claims refer to the attack being structurally infeasible under the deterministic invariants of PQSF, PQHD, PQVL, PQAI, and Epoch Clock.)
+This manifest is used for repo-wide AI ingestion, cross-spec validation, and interoperability testing.
 
-* Replay-related attack classes – **Structurally Eliminated**
-* Time-forgery and rollback classes – **Structurally Eliminated**
-* Consent misuse classes – **Structurally Eliminated**
-* Transport replay and downgrade classes – **Structurally Eliminated**
-* PSBT malleation classes – **Structurally Eliminated**
-* Seed-theft signing vectors – **Defeated by Predicate Model**
-* Runtime integrity bypass – **Mitigated by Mandatory Attestation**
-* Cloud plaintext visibility – **Mitigated by Encrypted-Before-Transport (EBT)**
-* AI behavioural replay & prompt-layer attacks – **Defeated by Canonical Intent Binding**
-* Military/Critical-Infrastructure command spoofing – **Structurally Eliminated**
+---
+
+# **ANNEX A — Security & Attack Surface Analysis (INFORMATIVE)**
+
+The PQ Ecosystem is designed to eliminate or significantly reduce known attack surfaces across internet protocols, transport layers, runtime environments, operating systems, digital asset custody, identity frameworks, cloud infrastructure, AI behaviour, hardware, physical-world interfaces, and critical-infrastructure/military systems. This annex enumerates those attack surfaces, quantifies the reduction or elimination achieved, and identifies the cryptographic or deterministic mechanisms responsible.
+
+## **A.0 Security Uplift Summary (INFORMATIVE)**
+
+This annex is Informative. The classifications and reductions described here apply to the PQ Ecosystem when all normative invariants defined in this specification are correctly implemented.
+
+“Structurally Eliminated” means the attack cannot occur within the protocol model without violating a mandatory invariant such as tick monotonicity, canonical encoding, predicate completeness, or fail-closed behaviour. This term describes the security properties of the model; it does not guarantee the absence of implementation defects.
+
+Percentage ranges (e.g., “Reduced 60–80%”) are analytical estimates used for relative comparison across attack classes. They are not empirical measurements and are provided to help implementers understand where the protocol produces hard eliminations versus partial reductions. Real-world security depends on correct implementation, environment, and operational practices.
+
+### **Per-Attack Uplift Summary (INFORMATIVE)**
+
+All elimination claims refer to the attack being structurally infeasible under the deterministic invariants of PQSF, PQHD, PQVL, PQAI, and Epoch Clock.
+
+* Replay-related attack classes — Structurally Eliminated
+* Time-forgery and rollback classes — Structurally Eliminated
+* Consent misuse classes — Structurally Eliminated
+* Transport replay and downgrade classes — Structurally Eliminated
+* PSBT malleation classes — Structurally Eliminated
+* Seed-theft signing vectors — Defeated by Predicate Model
+* Runtime integrity bypass — Mitigated by Mandatory Attestation
+* Cloud plaintext visibility — Mitigated by Encrypted-Before-Transport (EBT)
+* AI behavioural replay and prompt-layer attacks — Defeated by Canonical Intent Binding
+* Military/critical-infrastructure command spoofing — Structurally Eliminated
 * Residual attack classes (reduced only):
-    * Coercion / social engineering – Reduced ($60–85\%$)
-    * Hardware-level fault or side-channel attacks – Reduced ($40–80\%$)
-    * Supply-chain poisoning prior to signing – Reduced ($80–95\%$)
-    * Sensor-level adversarial AI perturbations – Reduced ($40–80\%$)
-    * Traffic metadata correlation – Reduced ($60–75\%$)
-    * Cold-boot / RAM remanence – Reduced ($80–90\%$)
-    * Electronic-warfare traffic analysis – Reduced ($60–75\%$)
 
-## **A.1 Purpose (Informative)**
-This annex documents all known attack surfaces relevant to the PQ Ecosystem, spanning internet protocols, operating systems, runtime layers, custody systems, cloud environments, AI behaviour, identity frameworks, supply chains, hardware, physical-world interfaces, and defence/military communications.
+  * Coercion / social engineering — Reduced (60–85%)
+  * Hardware-level fault or side-channel attacks — Reduced (40–80%)
+  * Supply-chain poisoning prior to signing — Reduced (80–95%)
+  * Sensor-level adversarial AI perturbations — Reduced (40–80%)
+  * Traffic metadata correlation — Reduced (60–75%)
+  * Cold-boot / RAM remanence — Reduced (80–90%)
+  * Electronic-warfare traffic analysis — Reduced (60–75%)
+
+## **A.1 Purpose (INFORMATIVE)**
+
+This annex documents known attack surfaces relevant to the PQ Ecosystem, spanning internet protocols, operating systems, runtime layers, custody systems, cloud environments, AI behaviour, identity frameworks, supply chains, hardware, physical-world interfaces, and defence/military communications.
+
 For each attack class, this annex specifies:
-1. whether the attack is eliminated or reduced,
-2. the percentage reduction,
-3. the cryptographic or deterministic mechanism responsible, and
-4. any residual risk, when applicable.
-It provides a complete threat-model reference for auditors and high-assurance implementers.
 
-## **A.2 Methodology (Informative)**
+1. whether the attack is eliminated or reduced,
+2. the approximate reduction range (when applicable),
+3. the deterministic mechanism responsible, and
+4. residual risk, when applicable.
+
+## **A.2 Methodology (INFORMATIVE)**
+
 Attack classes are evaluated based on whether they can occur under the invariants enforced by:
+
 * EpochTick (verifiable time)
 * ConsentProof (explicit, canonical intent)
 * Policy Enforcer (deterministic authorisation)
-* PQVL (runtime integrity & drift detection)
+* PQVL (runtime integrity and drift detection)
 * PQAI (deterministic AI behaviour)
 * PQHD (multi-predicate custody)
 * TLSE-EMP / STP (deterministic transport)
 * EBT (Encrypted-Before-Transport)
 * Canonical CBOR/JCS (encoding invariants)
 * Local Merkle Ledger (monotonic state continuity)
-**Structurally Eliminated** → Structurally impossible without violating a mandatory cryptographic invariant or deterministic rule.
-**Reduced (x–y%)** → Residual risk arises only from hardware, physical, or human factors.
 
-## **A.3 Temporal & Replay-Class Attacks**
-Temporal manipulation enables replay, rollback, out-of-order authorisation, and state desynchronisation.
-EpochTick and canonical time validation eliminate all cryptographically meaningful time attacks.
+Structurally Eliminated → structurally impossible without violating a mandatory cryptographic invariant or deterministic rule.
+Reduced (x–y%) → residual risk arises only from hardware, physical, or human factors.
 
-* Time Rollback Attack – **Structurally Eliminated**
-* Stale-Tick Replay – **Structurally Eliminated**
-* Synthetic Tick Generation – **Structurally Eliminated**
-* Mirror-Based Time Spoofing – **Structurally Eliminated**
-* Profile Lineage Poisoning – **Structurally Eliminated**
-* Transport Session Replay – **Structurally Eliminated**
-* Cross-Session Authorisation Replay – **Structurally Eliminated**
+## **A.3 Temporal & Replay-Class Attacks (INFORMATIVE)**
 
-## **A.4 Transport & Network-Level Attacks**
-Transport-level attacks rely on replayable, mutable, or downgrade-permissive handshakes.
-TLSE-EMP, STP, exporter binding, and deterministic framing eliminate all meaningful vectors.
+Temporal manipulation enables replay, rollback, out-of-order authorisation, and state desynchronisation. EpochTick and canonical time validation eliminate all cryptographically meaningful time attacks.
 
-* TLS Downgrade Attack – **Structurally Eliminated**
-* TLS Session Hijacking – **Structurally Eliminated**
-* Transcript Mismatch – **Structurally Eliminated**
-* MITM (Man-in-the-Middle) – **Structurally Eliminated**
-* DNS Poisoning – **Structurally Eliminated**
-* Evil Twin / Rogue AP – **Structurally Eliminated**
-* Non-Canonical Frame Injection – **Structurally Eliminated**
-* Ciphertext Replay – **Structurally Eliminated**
-* Traffic Metadata Correlation – Reduced ($60–75\%$)
+* Time rollback attack — Structurally Eliminated
+* Stale-tick replay — Structurally Eliminated
+* Synthetic tick generation — Structurally Eliminated
+* Mirror-based time spoofing — Structurally Eliminated
+* Profile lineage poisoning — Structurally Eliminated
+* Transport session replay — Structurally Eliminated
+* Cross-session authorisation replay — Structurally Eliminated
 
-### **A.4.1 Note on High-Assurance Platforms (Informative)**
+## **A.4 Transport & Network-Level Attacks (INFORMATIVE)**
 
-The comparisons in this section are Informative. High-Assurance Platforms
-(HAPs), such as microkernel-verified systems, address local-node correctness,
-while the PQ Ecosystem addresses distributed-system correctness across time,
-policy, intent, transport, runtime integrity, and ledger continuity.
+Transport-level attacks rely on replayable, mutable, or downgrade-permissive handshakes. TLSE-EMP, STP, exporter binding, and deterministic framing eliminate all meaningful vectors.
 
-The uplift figures describe how the mandatory PQ invariants reduce attack
-classes at the protocol level. They do not represent measured performance of any
-specific HAP implementation. The two approaches are complementary: HAP improves
-local correctness; the PQ Ecosystem eliminates or reduces systemic and
-cross-domain attack classes.
+* TLS downgrade attack — Structurally Eliminated
+* TLS session hijacking — Structurally Eliminated
+* Transcript mismatch — Structurally Eliminated
+* MITM (man-in-the-middle) — Structurally Eliminated
+* DNS poisoning — Structurally Eliminated
+* Evil twin / rogue AP — Structurally Eliminated
+* Non-canonical frame injection — Structurally Eliminated
+* Ciphertext replay — Structurally Eliminated
+* Traffic metadata correlation — Reduced (60–75%)
 
-## **A.4.2 High-Assurance Baseline: High Assurance Platform (HAP)**
+### **A.4.1 Note on High-Assurance Platforms (INFORMATIVE)**
+
+The comparisons in this section are Informative. High-Assurance Platforms (HAPs), such as microkernel-verified systems, address local-node correctness, while the PQ Ecosystem addresses distributed-system correctness across time, policy, intent, transport, runtime integrity, and ledger continuity.
+
+The uplift figures describe how the mandatory PQ invariants reduce attack classes at the protocol level. They do not represent measured performance of any specific HAP implementation. The two approaches are complementary: HAP improves local correctness; the PQ Ecosystem eliminates or reduces systemic and cross-domain attack classes.
+
+## **A.4.2 High-Assurance Baseline: High Assurance Platform (HAP) (INFORMATIVE)**
 
 HAP-class systems (for example seL4-based high-assurance platforms) represent the strongest per-node security achieved to date. Formal verification and capability security reduce local compromise probability by a large margin.
 
-Local assurance uplift (HAP):
-$\approx 75–92\%$ reduction in single-node compromise risk.
+Local assurance uplift (HAP): approximately 75–92% reduction in single-node compromise risk.
 
 HAP does not address distributed-system vectors such as replay, stale time, cloud plaintext exposure, session-token reuse, policy inconsistency, runtime drift, or AI-model substitution. These domains are covered by PQSF, PQHD, PQVL, PQAI, and Epoch Clock.
 
-Systemic assurance uplift (PQ Ecosystem):
-$\approx 55–85\%$ reduction in distributed compromise risk.
+Systemic assurance uplift (PQ Ecosystem): approximately 55–85% reduction in distributed compromise risk.
 
-The two approaches are complementary. HAP maximises local correctness. The PQ Ecosystem provides end-to-end systemic guarantees across time, consent, runtime, policy, identity, and AI behaviour.
+Combined real-world uplift (HAP + PQ Ecosystem): approximately 93–98% total reduction in compromise probability for correctly implemented modern distributed systems.
 
-Combined real-world uplift (HAP + PQ Ecosystem):
-$\approx 93–98\%$ total reduction in compromise probability for correctly implemented modern distributed systems.
+## **A.5 Consent, Intent & UI-Layer Attacks (INFORMATIVE)**
 
-## **A.5 Consent, Intent & UI-Layer Attacks**
 Explicit, canonical, tick-bound ConsentProof and KeyMail eliminate structural misuse vectors.
 
-* Consent Replay – **Structurally Eliminated**
-* Cross-Session Consent Misuse – **Structurally Eliminated**
-* Consent Tampering – **Structurally Eliminated**
-* UI-Level Prompt Injection – **Structurally Eliminated**
-* Fake-UI Overlay / Phishing UI – **Structurally Eliminated by KeyMail / Attestation**
-* Prompt-Phase Identity Spoofing – **Structurally Eliminated**
-* Clickjacking / Forced-Click – **Structurally Eliminated**
-* Social-Engineering-Based Consent – Reduced ($70–85\%$)
-* Browser Extension Manipulation – **Mitigated by Mandatory Attestation**
+* Consent replay — Structurally Eliminated
+* Cross-session consent misuse — Structurally Eliminated
+* Consent tampering — Structurally Eliminated
+* UI-level prompt injection — Structurally Eliminated
+* Fake-UI overlay / phishing UI — Structurally Eliminated by KeyMail / Attestation
+* Prompt-phase identity spoofing — Structurally Eliminated
+* Clickjacking / forced-click — Structurally Eliminated
+* Social-engineering-based consent — Reduced (70–85%)
+* Browser extension manipulation — Mitigated by Mandatory Attestation
 
-## **A.6 Policy & Authorisation-Rule Attacks**
-Policy attacks target deterministic rule evaluation between intent and action.
-The Policy Enforcer’s canonical hashing, tick-bounded constraints, and mandatory predicates eliminate structural bypasses.
+## **A.6 Policy & Authorisation-Rule Attacks (INFORMATIVE)**
 
-* Allowlist / Denylist Bypass – **Structurally Eliminated**
-* Threshold Bypass – **Structurally Eliminated**
-* Time-Window Evasion – **Structurally Eliminated**
-* Policy\_Hash Mismatch – **Structurally Eliminated**
-* Policy Downgrade – **Structurally Eliminated**
-* Constraint Evasion – **Structurally Eliminated**
-* Forced-Policy Misconfiguration (User Error) – Reduced ($80–95\%$)
+Policy attacks target deterministic rule evaluation between intent and action. The Policy Enforcer’s canonical hashing, tick-bounded constraints, and mandatory predicates eliminate structural bypasses.
 
-## **A.7 Runtime, OS & Execution-Environment Attacks**
-PQVL attestation and deterministic integrity checks eliminate runtime compromise vectors.
+* Allowlist/denylist bypass — Structurally Eliminated
+* Threshold bypass — Structurally Eliminated
+* Time-window evasion — Structurally Eliminated
+* Policy_hash mismatch — Structurally Eliminated
+* Policy downgrade — Structurally Eliminated
+* Constraint evasion — Structurally Eliminated
+* Forced-policy misconfiguration (user error) — Reduced (80–95%)
 
-* Runtime Compromise – **Mitigated by Mandatory Attestation**
-* Attestation Spoofing – **Mitigated by Mandatory Attestation**
-* Drift Bypass – **Mitigated by Mandatory Attestation**
-* Probe Omission – **Mitigated by Mandatory Attestation**
-* Process Hijacking – **Mitigated by Mandatory Attestation**
-* Binary Tampering – **Mitigated by Mandatory Attestation**
-* Hot-Patch Injection – **Mitigated by Mandatory Attestation**
-* Memory Manipulation During Attestation – **Mitigated by Mandatory Attestation**
-* Sandbox Circumvention – **Mitigated by Mandatory Attestation**
-* Host-Level Malware (keylogger/clipboard rewrite) – **Mitigated by Mandatory Attestation**
+## **A.7 Runtime, OS & Execution-Environment Attacks (INFORMATIVE)**
 
-## **A.8 Ledger & State-Continuity Attacks**
+PQVL attestation and deterministic integrity checks mitigate runtime compromise vectors.
+
+* Runtime compromise — Mitigated by Mandatory Attestation
+* Attestation spoofing — Mitigated by Mandatory Attestation
+* Drift bypass — Mitigated by Mandatory Attestation
+* Probe omission — Mitigated by Mandatory Attestation
+* Process hijacking — Mitigated by Mandatory Attestation
+* Binary tampering — Mitigated by Mandatory Attestation
+* Hot-patch injection — Mitigated by Mandatory Attestation
+* Memory manipulation during attestation — Mitigated by Mandatory Attestation
+* Sandbox circumvention — Mitigated by Mandatory Attestation
+* Host-level malware (keylogger/clipboard rewrite) — Mitigated by Mandatory Attestation
+
+## **A.8 Ledger & State-Continuity Attacks (INFORMATIVE)**
+
 The monotonic, hash-chained Merkle ledger eliminates state-continuity bypasses.
 
-* Ledger Rollback – **Structurally Eliminated**
-* Merkle-Root Mismatch – **Structurally Eliminated**
-* Event Reordering – **Structurally Eliminated**
-* Divergent Histories – **Structurally Eliminated**
-* Append-Without-Tick – **Structurally Eliminated**
-* Ledger Freeze Manipulation – **Structurally Eliminated**
-* Cross-Device Reconciliation Attack – **Structurally Eliminated**
+* Ledger rollback — Structurally Eliminated
+* Merkle-root mismatch — Structurally Eliminated
+* Event reordering — Structurally Eliminated
+* Divergent histories — Structurally Eliminated
+* Append-without-tick — Structurally Eliminated
+* Ledger freeze manipulation — Structurally Eliminated
+* Cross-device reconciliation attack — Structurally Eliminated
 
-## **A.9 Digital Asset / Wallet-Custody Attacks**
+## **A.9 Digital Asset / Wallet-Custody Attacks (INFORMATIVE)**
+
 PQHD’s multi-predicate custody model eliminates classical wallet vulnerabilities.
 
-* PSBT Malleation – **Structurally Eliminated**
-* Signature Replay – **Structurally Eliminated**
-* Seed-Theft Signing – **Defeated by Predicate Model**
-* Classical-ECDSA Break Spending – **Defeated by Predicate Model**
-* Coordinator Tampering – **Structurally Eliminated**
-* Multisig Drift – **Structurally Eliminated**
-* Recovery Bypass – **Structurally Eliminated**
-* Secure Import Bypass – **Structurally Eliminated**
-* Chain-Key Leakage (Annex S/T) – **Structurally Eliminated**
+* PSBT malleation — Structurally Eliminated
+* Signature replay — Structurally Eliminated
+* Seed-theft signing — Defeated by Predicate Model
+* Classical ECDSA break spending — Defeated by Predicate Model
+* Coordinator tampering — Structurally Eliminated
+* Multisig drift — Structurally Eliminated
+* Recovery bypass — Structurally Eliminated
+* Secure Import bypass — Structurally Eliminated
+* Chain-key leakage — Structurally Eliminated
 
-## **A.10 AI Behaviour, Model Integrity & Prompt-Layer Attacks**
+## **A.10 AI Behaviour, Model Integrity & Prompt-Layer Attacks (INFORMATIVE)**
+
 PQAI enforces deterministic, tick-bounded behaviour; eliminating ambiguity, drift, and prompt injection.
 
-* AI Drift Replay – **Structurally Eliminated**
-* Alignment Freshness Bypass – **Structurally Eliminated**
-* Fingerprint Mismatch – **Structurally Eliminated**
-* Runtime-Invalid Inference – **Mitigated by Mandatory Attestation**
-* SafePrompt Bypass – **Structurally Eliminated**
-* Model Replacement / Profile Downgrade – **Structurally Eliminated**
-* Model Shadowing – **Structurally Eliminated**
-* Adversarial Behavioural Patterns – **Structurally Eliminated**
-* Cross-Site Prompt Replay – **Structurally Eliminated**
-* Prompt Injection – **Structurally Eliminated**
-* Model-Mediated Authority Elevation – **Defeated by Predicate Model**
-* Behavioural Replay – **Structurally Eliminated**
-* Inference Under Stale Ticks – **Structurally Eliminated**
+* AI drift replay — Structurally Eliminated
+* Alignment freshness bypass — Structurally Eliminated
+* Fingerprint mismatch — Structurally Eliminated
+* Runtime-invalid inference — Mitigated by Mandatory Attestation
+* SafePrompt bypass — Structurally Eliminated
+* Model replacement/profile downgrade — Structurally Eliminated
+* Model shadowing — Structurally Eliminated
+* Adversarial behavioural patterns — Structurally Eliminated
+* Cross-site prompt replay — Structurally Eliminated
+* Prompt injection — Structurally Eliminated
+* Model-mediated authority elevation — Defeated by Predicate Model
+* Behavioural replay — Structurally Eliminated
+* Inference under stale ticks — Structurally Eliminated
 
-## **A.11 Identity, Delegation & Credential Attacks**
+## **A.11 Identity, Delegation & Credential Attacks (INFORMATIVE)**
+
 Canonical credentials, tick-bounded validity, and deterministic delegation structures eliminate structural misuse.
 
-* Delegated Identity Scope Elevation – **Structurally Eliminated**
-* Delegated Spending Overflow – **Structurally Eliminated**
-* Delegation Replay – **Structurally Eliminated**
-* Identity Attribute Tampering – **Structurally Eliminated**
-* Selective Disclosure Bypass – **Structurally Eliminated**
-* Revocation Bypass – **Structurally Eliminated**
-* Credential Leakage / Misuse – Reduced ($80–95\%$)
-* KYC Issuer Spoofing – **Structurally Eliminated**
+* Delegated identity scope elevation — Structurally Eliminated
+* Delegated spending overflow — Structurally Eliminated
+* Delegation replay — Structurally Eliminated
+* Identity attribute tampering — Structurally Eliminated
+* Selective disclosure bypass — Structurally Eliminated
+* Revocation bypass — Structurally Eliminated
+* Credential leakage/misuse — Reduced (80–95%)
+* KYC issuer spoofing — Structurally Eliminated
 
-## **A.12 Cloud & Host-Operator Attacks**
-Encrypted-Before-Transport (EBT) eliminates plaintext visibility and structural replay.
+## **A.12 Cloud & Host-Operator Attacks (INFORMATIVE)**
 
-* Cloud Plaintext Visibility – **Mitigated by Encrypted-Before-Transport (EBT)**
-* Host Operator Tampering – **Structurally Eliminated**
-* Cloud Snapshot Replay – **Structurally Eliminated**
-* Encrypted-Bundle Replay – **Structurally Eliminated**
-* Long-Term Storage Persistence Beyond Validity – **Structurally Eliminated**
-* Cloud Endpoint Impersonation – **Structurally Eliminated**
-* Metadata Leakage in Cloud Workflows – Reduced ($60–80\%$)
+Encrypted-Before-Transport (EBT) mitigates plaintext visibility and structural replay.
 
-## **A.13 Hardware-Level Attacks**
+* Cloud plaintext visibility — Mitigated by Encrypted-Before-Transport (EBT)
+* Host operator tampering — Structurally Eliminated
+* Cloud snapshot replay — Structurally Eliminated
+* Encrypted-bundle replay — Structurally Eliminated
+* Long-term storage persistence beyond validity — Structurally Eliminated
+* Cloud endpoint impersonation — Structurally Eliminated
+* Metadata leakage in cloud workflows — Reduced (60–80%)
+
+## **A.13 Hardware-Level Attacks (INFORMATIVE)**
+
 Hardware-level threats cannot be eliminated cryptographically.
 
-* Hardware Fault Injection (glitching) – Reduced ($60–80\%$)
-* Microarchitectural Side-Channels (Spectre/Meltdown) – Reduced ($40–70\%$)
-* Cache-Timing Attacks – Reduced ($60–80\%$)
-* Power / EM Analysis – Reduced ($50–75\%$)
-* Entropy / RNG Compromise – Reduced ($70–90\%$)
-* Malicious Silicon (fabrication backdoors) – Reduced ($40–60\%$)
-* DMA Memory Attacks – Reduced ($70–90\%$)
-* Rowhammer-Class Manipulation – Reduced ($70–85\%$)
+* Hardware fault injection (glitching) — Reduced (60–80%)
+* Microarchitectural side-channels (Spectre/Meltdown) — Reduced (40–70%)
+* Cache-timing attacks — Reduced (60–80%)
+* Power/EM analysis — Reduced (50–75%)
+* Entropy/RNG compromise — Reduced (70–90%)
+* Malicious silicon (fabrication backdoors) — Reduced (40–60%)
+* DMA memory attacks — Reduced (70–90%)
+* Rowhammer-class manipulation — Reduced (70–85%)
 
-## **A.14 Software Supply-Chain Attacks**
-Deterministic builds, signatures, and attestation greatly reduce supply-chain attack viability.
+## **A.14 Software Supply-Chain Attacks (INFORMATIVE)**
 
-* Compiler-Level Backdoors (Thompson-class) – Reduced ($80–90\%$)
-* Dependency Poisoning – Reduced ($85–95\%$)
-* Update-Channel Tampering – Reduced ($80–90\%$)
-* Build-System Compromise – Reduced ($80–90\%$)
-* Packaging Injection – **Structurally Eliminated**
-* Deterministic-Build Subversion – Reduced ($80–90\%$)
-* Pre-Signed Malicious Binaries – Reduced ($80–90\%$)
+Deterministic builds, signatures, and attestation reduce supply-chain attack viability.
 
-## **A.15 Human-Factor Attacks**
+* Compiler-level backdoors (Thompson-class) — Reduced (80–90%)
+* Dependency poisoning — Reduced (85–95%)
+* Update-channel tampering — Reduced (80–90%)
+* Build-system compromise — Reduced (80–90%)
+* Packaging injection — Structurally Eliminated
+* Deterministic-build subversion — Reduced (80–90%)
+* Pre-signed malicious binaries — Reduced (80–90%)
+
+## **A.15 Human-Factor Attacks (INFORMATIVE)**
+
 These target the operator, not the system.
 
-* Phishing (KeyMail-targeted) – **Structurally Eliminated**
-* Social Engineering Against Consent – Reduced ($70–85\%$)
-* Coercion / Duress – Reduced ($60–70\%$)
-* User Misinterpretation of Prompts – Reduced ($70–85\%$)
-* Shoulder-Surfing / Visual Capture – Reduced ($60–80\%$)
-* Backup Mismanagement – Reduced ($70–85\%$)
-* User-Chosen Malicious Action – **Not Reducible**
+* Phishing (KeyMail-targeted) — Structurally Eliminated
+* Social engineering against consent — Reduced (70–85%)
+* Coercion/duress — Reduced (60–70%)
+* User misinterpretation of prompts — Reduced (70–85%)
+* Shoulder-surfing/visual capture — Reduced (60–80%)
+* Backup mismanagement — Reduced (70–85%)
+* User-chosen malicious action — Not reducible
 
-## **A.16 Physical-World & Environmental Attacks**
+## **A.16 Physical-World & Environmental Attacks (INFORMATIVE)**
+
 Physical and analog threats remain partially outside software control.
 
-* Cold-Boot RAM Extraction – Reduced ($80–90\%$)
-* Physical Device Theft During Active Session – Reduced ($85–95\%$)
-* Thermal / Acoustic Leakage – Reduced ($40–60\%$)
-* Environmental AI Perturbations – Reduced ($50–80\%$)
-* Visual Adversarial Perturbations – Reduced ($50–80\%$)
-* Sensor-Level Prompt Injection – Reduced ($60–80\%$)
-* Hardware Tampering While Powered Down – Reduced ($60–85\%$)
+* Cold-boot RAM extraction — Reduced (80–90%)
+* Physical device theft during active session — Reduced (85–95%)
+* Thermal/acoustic leakage — Reduced (40–60%)
+* Environmental AI perturbations — Reduced (50–80%)
+* Visual adversarial perturbations — Reduced (50–80%)
+* Sensor-level prompt injection — Reduced (60–80%)
+* Hardware tampering while powered down — Reduced (60–85%)
 
-## **A.17 Military & High-Assurance Applications (Informative)**
-Applicable to defence, critical-infrastructure, contested, or EW environments.
+## **A.17 Military & High-Assurance Applications (INFORMATIVE)**
 
-* Satellite / Disconnected Replay Attacks – **Structurally Eliminated**
-* Command Spoofing / Order Injection – **Structurally Eliminated**
-* Intercept-and-Reissue (SIGINT-class MITM) – **Structurally Eliminated**
-* Compromised Forward Operating Base Host – **Mitigated by Mandatory Attestation**
-* Electromagnetic / RF Link Replay – **Structurally Eliminated**
-* Cross-Unit Permission Escalation – **Structurally Eliminated**
-* AI-Assisted Targeting Manipulation – **Structurally Eliminated**
-* Base-Station Model Replacement – **Structurally Eliminated**
-* Electronic Warfare Traffic Correlation – Reduced ($60–75\%$)
-* Air-Gapped Hardware Breach – Reduced ($60–80\%$)
+Applicable to defence, critical infrastructure, contested, or EW environments.
 
-## **A.18 Implementation Assurance (Informative)**
+* Satellite/disconnected replay attacks — Structurally Eliminated
+* Command spoofing/order injection — Structurally Eliminated
+* Intercept-and-reissue (SIGINT-class MITM) — Structurally Eliminated
+* Compromised forward operating base host — Mitigated by Mandatory Attestation
+* Electromagnetic/RF link replay — Structurally Eliminated
+* Cross-unit permission escalation — Structurally Eliminated
+* AI-assisted targeting manipulation — Structurally Eliminated
+* Base-station model replacement — Structurally Eliminated
+* Electronic warfare traffic correlation — Reduced (60–75%)
+* Air-gapped hardware breach — Reduced (60–80%)
 
-The security benefits described in this annex assume correct implementation of
-all normative requirements. These analyses do not replace implementation
-verification, testing, or assurance processes.
+## **A.18 Implementation Assurance (INFORMATIVE)**
+
+The security benefits described in this annex assume correct implementation of all normative requirements. These analyses do not replace implementation verification, testing, or assurance processes.
 
 ---
 
@@ -635,65 +699,17 @@ Signed structure containing ProbeResults, drift_state, tick, and envelope_id.
 **Baseline**
 Expected canonical probe details used for PQVL drift evaluation.
 
-**BDC — Bluep Derived Credential**
-Deterministically derived credential object defined within PQSF/PQHD identity extensions.
+**ComplianceManifest**
+Signed canonical declaration object defined in Section 15.2 containing compliance_level, module_versions, profile_ref, and an ML-DSA-65 signature.
 
-**Bundle Hash (PQHD)**
-Canonical SHAKE256-256 hash of the fully canonical PSBT.
-
-**Canonical Encoding**
-Byte-identical deterministic encoding via JCS JSON or deterministic CBOR.
-
-**Canonical Fingerprint**
-Deterministic fingerprint of AI behaviour, encoded before hashing.
-
-**ChainDescriptor (PQHD Annex S)**
-Deterministic parameters describing chain-specific derivation and address formats.
-
-**Child Profile (Epoch Clock)**
-Profile whose parent_profile_ref links it to an earlier on-chain profile.
-
-**ClockLock (PQSF)**
-Deterministic enforcement binding operations to a fresh, monotonic EpochTick.
-
-**Commitment Key (L2)**
-Deterministic L2 key derived for a specific channel or contract.
-
-**ConsentProof**
-Canonical, tick-bound structure binding user intent to an explicit action.
-
-**Context Parameters**
-Canonical parameters used as input to deterministic cSHAKE256 derivation.
-
-**DelegatedIdentity**
-Optional credential granting identity-scoped permissions (Annex Q).
-
-**DelegatedPaymentCredential**
-Optional credential granting payment-scoped permissions (Annex R).
-
-**Deterministic CBOR**
-CBOR encoded according to RFC 8949 §4.2 rules.
-
-**Deterministic Transport**
-Transport mode with deterministic state transitions and canonical frames (TLSE-EMP / STP).
-
-**Device Attestation**
-PQVL-verified runtime state describing system_state, process_state, integrity_state.
+**Compliance Level**
+Declared PQSF conformance tier: MVP, FULL, or EXTENDED.
 
 **DeviceIdentity_PQVL**
-Identity derived from PQVL attestation public key + measurement hashes.
+Identity derived from PQVL attestation public key and measurement hashes.
 
 **DeviceIdentity_Minimal**
 Fallback deterministic identity based on device-bound PQHD key.
-
-**Drift State (PQVL/PQAI)**
-Runtime or behavioural state: NONE, WARNING, or CRITICAL.
-
-**ECDSA-P256**
-Optional classical fallback signature algorithm present only for transitional interoperability.
-
-**EmergencyTick**
-Tick issued under quorum rotation rules during emergency conditions.
 
 **Epoch Clock**
 Cryptographic time authority anchored to Bitcoin via Ordinals.
@@ -701,98 +717,14 @@ Cryptographic time authority anchored to Bitcoin via Ordinals.
 **EpochTick**
 Signed tick object containing time, profile_ref, alg, and sig.
 
-**Exporter Hash**
-TLS exporter-derived, session-bound identity used across PQSF.
-
 **Fail-Closed**
 Mandatory behaviour: any predicate failure halts the operation.
 
-**Fingerprint (PQAI)**
-Deterministic set of behavioural probes used for drift detection.
-
-**Fingerprint Hash**
-SHAKE256-256 hash of canonical fingerprint bytes.
-
-**Governance Key**
-Deterministically derived key class for governance/rotation flows.
-
-**Guardian**
-Role capable of approving Recovery Capsules and high-risk governance actions.
-
-**HD Seed Adoption**
-Optional process for adopting external HD seeds before PQHD initialisation.
-
-**Intent Hash**
-SHAKE256-256 digest representing canonicalised user intent.
-
 **KeyMail**
-Optional OOB confirmation system used for high-security approvals.
-
-**KYCCredential**
-Optional identity attribute credential signed by issuer.
-
-**KYCDisclosure**
-Selective disclosure object revealing a subset of KYCCredential attributes.
-
-**Ledger**
-Deterministic append-only, Merkle-anchored event sequence.
-
-**Ledger Freeze**
-State where ledger refuses new writes until reconciliation resolves mismatches.
-
-**Lineage (Profile)**
-Parent-child profile chain enforced during Epoch Clock validation.
-
-**L2 Namespace (Annex T)**
-Deterministic namespace for rollups, Lightning, DeFi, etc.
-
-**Merkle Node**
-SHAKE256-256 hash representing a ledger interior node.
-
-**Merkle Root**
-Canonical root hash of ledger.
-
-**Minimal Identity**
-Fallback device identity when PQVL unavailable.
-
-**Mirrors (Epoch Clock)**
-Independent nodes verifying and republishing ticks and profiles.
+Optional out-of-band confirmation channel for high-risk operations, supplemental to ConsentProof.
 
 **ModelProfile (PQAI)**
-Canonical identity, configuration, provenance, fingerprint, alignment metadata for AI models.
-
-**Monotonicity**
-Time must strictly increase under EpochTick validation.
-
-**Multisig Predicate**
-Set of role-, quorum-, and tick-bound conditions enforced by PQHD.
-
-**Parallel Device Attestation**
-Simultaneous validation of multiple device runtime-states in multisig contexts.
-
-**Parent Profile**
-Bitcoin-inscribed source profile defining Epoch Clock v2 parameters.
-
-**Password Vault (Annex N)**
-Encrypted vault storing deterministic secrets and credentials.
-
-**Payload Hash**
-Canonicalised payload hash inside ConsentProof, Policy, or LedgerEntry.
-
-**Policy Enforcer**
-Deterministic evaluation engine used by PQSF & PQHD.
-
-**Policy Hash**
-SHAKE256-256 digest of canonical policy.
-
-**ProbeResult**
-PQVL measurement record for runtime state.
-
-**Profile Ref**
-Ordinal reference linking a tick to its active Epoch Clock profile.
-
-**PSBT (Canonical)**
-PSBT normalised into deterministic byte order before hashing/signing.
+Canonical identity and configuration object for AI models, including fingerprint and alignment metadata.
 
 **PQAI**
 Post-Quantum Artificial Intelligence alignment and drift framework.
@@ -800,11 +732,11 @@ Post-Quantum Artificial Intelligence alignment and drift framework.
 **PQHD**
 Post-Quantum Hierarchical Deterministic Wallet specification.
 
-**PQKEM**
-Post-quantum KEM (ML-KEM-1024).
+**PQHD Custody (Baseline)**
+Minimum conformance tier qualifying as PQHD Custody as defined in Section 10.1.
 
-**PQLedger**
-Deterministic Merkle-based structure for recording critical events.
+**PQHD Custody (Enterprise)**
+Extended custody tier defined in Section 10.1 for institutional and sovereign threat models.
 
 **PQSF**
 Post-Quantum Security Framework.
@@ -812,74 +744,19 @@ Post-Quantum Security Framework.
 **PQVL**
 Post-Quantum Verification Layer (runtime integrity).
 
-**Recovery Capsule**
-Tick-bound, guardian-controlled envelope for deterministic recovery.
-
-**Replay Window**
-Temporal bounds before ticks, fingerprints, or consents become invalid.
-
-**Role Binding**
-Deterministic association between device identity and multisig role.
-
-**Runtime State**
-Validated environment state derived from PQVL.
+**Policy Hash**
+Canonical SHAKE256-256 digest of the deterministic policy object.
 
 **SafePrompt**
 Tick-bound, consent-bound structure for high-risk AI operations.
 
-**Secure Import**
-Tick-bound, dual-signature process for migrating classical seeds into PQHD.
-
-**Selective Disclosure**
-Proving a subset of identity attributes without revealing full credential.
-
-**Session Exporter**
-TLS-derived pseudorandom material binding PQSF objects to one session.
-
-**Signature (PQ)**
-ML-DSA-65 signature used across PQSF, PQHD, PQAI, PQVL.
-
-**Sovereign Transport Protocol (STP)**
-DNS-independent, deterministic transport protocol for constrained and offline modes.
-
-**Stealth Mode**
-Privacy mode where DNS and hybrid TLS are disabled; STP-only.
-
-**Tick Cache**
-Short-lived storage of last-valid tick (≤900 seconds).
-
-**Tick Expiry**
-Window after which EpochTick becomes stale.
-
-**Tick Freshness**
-Time since tick issuance.
-
-**Tick Monotonicity**
-Requirement that ticks always increase.
-
-**Tick Reuse**
-Local reuse of a tick within allowed window.
-
-**TLSE-EMP**
-Deterministic profile of TLS 1.3 with exporter binding and PQ primitives.
-
-**Travel Rule Data**
-Optional metadata for regulated payment flows.
-
-**Universal Secret (Annex M)**
-Deterministic non-custodial secret derived via cSHAKE256.
-
-**Vault Key**
-PQHD vault encryption keys (DEK/KEK) derived deterministically.
+**Transactional Profile (Non-Custodial)**
+Single-device configuration explicitly excluded from PQHD Custody guarantees.
 
 **Verifier**
 Any system validating cryptographic artefacts under deterministic rules.
 
-**Warning Drift**
-Non-blocking drift condition that still restricts high-risk flows.
-
 ---
-
 
 If you find this work useful and want to support it, you can do so here:
 bc1q380874ggwuavgldrsyqzzn9zmvvldkrs8aygkw
