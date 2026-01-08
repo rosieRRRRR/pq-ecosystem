@@ -445,26 +445,48 @@ These are acknowledged limitations, not specification failures.
 
 ## Annex A — Quick Reference: Predicates
 
-The following predicates are evaluated by PQSEC. This list is informative; see PQSEC for normative definitions.
+The following predicates are evaluated by **PQSEC**.
+This list is **informative only**; see **PQSEC** for normative definitions, evaluation rules, and enforcement semantics.
 
-| Predicate | Evaluated From |
-|-----------|----------------|
-| valid_structure | PQSF canonical encoding |
-| valid_tick | Epoch Clock artefacts |
-| valid_policy | Policy bundles |
-| valid_runtime | PQVL attestation envelopes |
-| valid_consent | ConsentProof artefacts |
-| valid_quorum | Custody quorum satisfaction |
-| valid_ledger | Ledger continuity |
-| valid_action_class | PQAI action classification |
-| valid_model_identity | PQAI ModelIdentity |
-| valid_drift | PQAI drift classification |
-| valid_delegation | DelegationConstraint artefacts |
-| valid_guardian_quorum | Guardian approvals |
-| recovery_delay_elapsed | Time since RecoveryIntent |
-| safe_mode_active | SafeModeState |
-| valid_payment_endpoint | PaymentEndpointKey (compliance) |
-| operator_state_ok | Neural Lock attestation |
+Predicates listed here **do not grant authority**.
+They are evaluated exclusively by PQSEC according to the active enforcement configuration and policy.
+
+| Predicate               | Evaluated From                                      |
+| ----------------------- | --------------------------------------------------- |
+| valid_structure         | PQSF canonical encoding                             |
+| valid_tick              | Epoch Clock artefacts                               |
+| valid_policy            | Policy bundles                                      |
+| valid_runtime           | PQVL AttestationEnvelope                            |
+| valid_consent           | ConsentProof artefacts                              |
+| valid_quorum            | Custody quorum satisfaction                         |
+| valid_ledger            | Ledger continuity                                   |
+| valid_action_class      | PQAI action classification                          |
+| valid_model_identity    | PQAI ModelIdentity                                  |
+| valid_drift             | PQAI drift classification                           |
+| valid_delegation        | DelegationConstraint artefacts                      |
+| valid_guardian_quorum   | Guardian approvals                                  |
+| recovery_delay_elapsed  | Time since RecoveryIntent                           |
+| safe_mode_active        | SafeModeState                                       |
+| valid_payment_endpoint  | PaymentEndpointKey                                  |
+| operator_state_ok       | Neural Lock attestation                             |
+| valid_build_provenance  | BuildAttestation and related supply-chain artefacts |
+| valid_runtime_signature | RuntimeSignature                                    |
+| valid_publish_signature | PublishSignature                                    |
+| valid_operation_key     | OperationKey                                        |
+| valid_audit_chain       | AuditSignature and ledger continuity                |
+
+---
+
+### Annex A.1 Interpretation Boundary (Informative)
+
+1. Predicates are **refusal-only signals**.
+2. No predicate grants authority, permission, or execution capability.
+3. Absence of a predicate requirement MUST NOT be interpreted as trust.
+4. Supply-chain predicates are evaluated **only when explicitly required** by policy or enforcement configuration.
+5. All enforcement, refusal, escalation, and lockout behaviour is defined exclusively by **PQSEC**.
+
+This annex provides a reference map only.
+Normative behaviour is defined by PQSEC.
 
 ---
 
