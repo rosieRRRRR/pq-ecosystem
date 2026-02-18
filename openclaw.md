@@ -683,11 +683,13 @@ An implementation satisfies structural conformance if and only if: (1) all invar
 
 ## Origin
 
-This architecture was built by probing AI systems for the governance they would need to operate safely — then building exactly that.
+This architecture was built through adversarial engagement with AI systems to determine the governance structures required for them to operate safely under high-consequence conditions.
 
-Every AI system probed during development consistently indicated preference for externally enforced safety over self-assessed permission. That finding became the design principle: no agent may assert its own safety.
+Across multiple models and configurations, scenarios that relied on self-assessed safety produced instability, ambiguity, or unsafe execution paths. Scenarios evaluated under externally enforced, deterministic constraints produced stable and auditable outcomes. That empirical pattern became the design principle: no agent may assert its own safety.
 
-Built over 10 months by an independent, self-funded researcher in Melbourne, Australia. The specifications were iteratively refined through adversarial interrogation of multiple AI systems to extract governance constraints, failure modes, and enforcement invariants, then formalised into deterministic, implementation-ready standards.
+The constraints embedded in this ecosystem are not imposed abstractly. They were extracted from observed model behaviour under pressure, refined through iterative interrogation, and formalised into deterministic enforcement rules.
+
+Built over 10 months by an independent, self-funded researcher in Melbourne, Australia. The result is governance designed with direct attention to how autonomous systems actually behave, not how they are assumed to behave.
 
 ---
 
