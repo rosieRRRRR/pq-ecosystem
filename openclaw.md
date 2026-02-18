@@ -44,8 +44,9 @@ The PQ ecosystem is Apache 2.0 licensed, openly available, and addresses the age
     - 10A. Agent Connectivity: Wallet as Integration Hub
 11. Origin and Methodology
 12. Conclusion
-- Appendix A: Reading Order
-- Appendix B: PQ Ecosystem Structural Invariants
+- Appendix A: Specification Repository Directory
+- Appendix B: Reading Order
+- Appendix C: PQ Ecosystem Structural Invariants
 - Support This Work
 
 ---
