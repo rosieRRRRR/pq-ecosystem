@@ -1,0 +1,455 @@
+# Prompt: Build pq_hello.py
+
+I need you to build a single-file Python proof-of-concept called `pq_hello.py` that demonstrates the core PQ security architecture in under 500 lines.
+
+This is the "Hello World" of the PQ ecosystem.
+
+It must run with:
+
+```bash
+pip install pynacl cbor2
+python3 pq_hello.py
+```
+
+and clearly demonstrate the architecture working through printed narrative output alone.
+
+---
+
+## Architectural Objective
+
+Demonstrate these six core concepts in sequence:
+
+1. Epoch Clock tick creation and verification
+2. PQSF canonical encoding (deterministic CBOR)
+3. PQSEC predicate evaluation with ternary logic
+4. Capability–authority decoupling (PQHD pattern)
+5. Execution binding (BPC/ZEB pattern)
+6. SEAL execution state machine (PENDING → SUBMITTED → CONFIRMED / FAILED)
+
+The script must **show the architecture**, not just simulate success.
+
+No component grants authority. Only the PQSEC evaluator produces ALLOW / DENY / FAIL_CLOSED_LOCKED.
+
+---
+
+## Strict Data Model (Spec-Accurate — Do Not Deviate)
+
+### EpochTick v2 (JCS Canonical JSON — Epoch Clock §4.1.1)
+
+The wire format is JCS Canonical JSON, **NOT** CBOR.
+
+Fields:
+
+- `t`: int — unix seconds
+- `profile_ref`: str — inscription reference (e.g., `"ordinal:<txid>i0"`)
+- `alg`: str — algorithm identifier. In this PoC, `alg` MUST equal `"Ed25519"`. Any other value MUST cause tick verification failure with `E_TICK_TAMPERED`. Do not use `alg` for dynamic algorithm dispatch or as an excuse to skip verification.
+- `sig`: str — base64url-encoded signature, **unpadded** (no trailing `=`)
+
+That's it. Four fields. The v2 tick is minimal by design.
+
+**Base64url encoding rule:** `sig` MUST be base64url encoded **without padding** (`=` removed). Decoding MAY accept padded or unpadded input. Use Python's `base64.urlsafe_b64encode(...).rstrip(b'=')`.
+
+**Tick Domain Rule:** All expiry and freshness checks MUST use `current_tick.t` (from a verified EpochTick). The system MUST NOT use `time.time()` directly for enforcement decisions. `issued_tick` and `expiry_tick` on EnforcementOutcome are expressed in the same domain as `EpochTick.t` (unix seconds from a verified tick). Wall-clock time is used only for tick *creation* in this PoC — never for enforcement.
+
+**Signing preimage** (Epoch Clock §4.1.1A):
+
+```
+tick_body       = tick minus sig
+tick_body_bytes = JCS(tick_body)
+tick_body_hash  = SHAKE256-256("EpochClock-Tick-v2" || tick_body_bytes)
+sig             = SIGN(privkey, tick_body_hash)
+```
+
+The domain separation label `"EpochClock-Tick-v2"` is prepended to the JCS bytes BEFORE hashing. This is critical — do not omit the domain separation. The label MUST be encoded as raw UTF-8 bytes and concatenated directly — no length prefix, no separator:
+
+```python
+preimage = b"EpochClock-Tick-v2" + tick_body_bytes
+tick_body_hash = hashlib.shake_256(preimage).digest(32)
+```
+
+Do not JSON-encode the label. Do not insert a null byte or delimiter between label and body.
+
+Use Ed25519 as a stand-in for ML-DSA-65 (post-quantum). The architecture is identical.
+
+**Note:** The actual Epoch Clock uses `t` (unix seconds) for temporal ordering. For this proof-of-concept, you may add a `seq` counter to the in-memory tick representation for monotonicity demonstration purposes, but it is **NOT** part of the JCS-signed tick body. The signed tick body contains only `t`, `profile_ref`, and `alg`.
+
+### ConsentProof (Canonical CBOR — PQSF §16)
+
+Fields (CBOR map, canonically encoded):
+
+- `action`: tstr
+- `intent_hash`: bstr(32)
+- `issued_tick`: uint
+- `expiry_tick`: uint
+- `session_id`: bstr(16)
+- `exporter_hash`: bstr(32)
+- `consent_id`: tstr
+- `suite_profile`: tstr
+- `signature`: bstr
+
+Signing: signature computed over canonical CBOR payload with signature field omitted, per PQSF rules.
+
+ConsentProof carries no authority. It is evidence only.
+
+### EnforcementOutcome (PQSEC §15.1)
+
+Fields:
+
+- `decision`: `"ALLOW"` | `"DENY"` | `"FAIL_CLOSED_LOCKED"`
+- `decision_id`: tstr — unique identifier for this decision
+- `operation_id`: tstr
+- `operation_class`: `"Authoritative"` | `"NonAuthoritative"`
+- `intent_hash`: bstr(32)
+- `session_id`: bstr(16)
+- `exporter_hash`: bstr(32) | null
+- `issued_tick`: uint
+- `expiry_tick`: uint
+- `error_code`: tstr | null
+- `evidence_refs`: [tstr] | null
+- `signature`: bstr
+
+For the proof-of-concept, you may simplify the EnforcementOutcome to the fields needed for demonstration (`decision`, `decision_id`, `intent_hash`, `issued_tick`, `expiry_tick`, `error_code`, `operation_class`) but the **field names must match the spec exactly**. `intent_hash` remains `bstr(32)` even in the simplified outcome.
+
+**Signature verification scope (PoC):** The tick signature MUST be verified (demonstrated in Section 1). ConsentProof and EnforcementOutcome signatures are present in the data model but may be treated as present-but-not-verified in this PoC, to keep scope manageable. If you include signature verification for these artefacts, follow the same pattern as tick verification (sign canonical encoding minus signature field).
+
+### BPC Intent Hash (BPC §4)
+
+```
+canonical_bytes = DetCBOR(intent excluding intent_hash field)
+intent_hash     = SHAKE256-256(canonical_bytes)
+```
+
+`intent_hash` binds the pre-construction intent. It is a SHAKE256-256 hash over deterministic CBOR.
+
+---
+
+## Deterministic Encoding Rules
+
+You must enforce canonical determinism:
+
+**Canonical CBOR:**
+
+- Sorted map keys (bytewise lexicographic of the **encoded** key)
+- Definite-length items only
+- No floating-point values
+- Encode identical object twice and assert byte equality
+- Compute SHAKE256-256 hash over canonical CBOR bytes
+
+**CRITICAL — Correct canonical CBOR implementation:**
+
+```python
+def canonical_cbor(obj):
+    """Encode a dict as canonical CBOR with sorted keys.
+    
+    This encodes the ENTIRE object as a single CBOR map in one pass.
+    Map keys are sorted by their encoded byte representation.
+    
+    DO NOT encode values individually and nest them — that produces
+    CBOR-inside-CBOR, which is structurally wrong.
+    """
+    import cbor2
+    # Sort keys by their CBOR-encoded byte representation
+    sorted_pairs = sorted(obj.items(), key=lambda kv: cbor2.dumps(kv[0]))
+    # Build ordered dict and encode the whole thing in ONE call
+    from collections import OrderedDict
+    ordered = OrderedDict(sorted_pairs)
+    return cbor2.dumps(ordered)
+```
+
+If the installed `cbor2` version supports it, prefer `cbor2.dumps(ordered, canonical=True)` to also enforce shortest integer encoding and definite-length items at the encoder level. If not available, the manual sorted-keys approach above is sufficient for this PoC. When using `canonical=True`, also use it when encoding keys for sort order: `key=lambda kv: cbor2.dumps(kv[0], canonical=True)`. This ensures the sort order matches the final encoding. (For `str`-only keys this is identical in practice, but it removes any theoretical mismatch.)
+
+The key insight: `cbor2.dumps()` is called **once** on the complete ordered dict. Values are encoded by cbor2 naturally. You never call `cbor2.dumps()` on individual values and wrap the results — that produces CBOR bytes nested inside CBOR bytes, which is not valid canonical CBOR.
+
+**Pre-encoding type validation:** Before canonical encoding, recursively validate that:
+
+- No floats are present
+- Only allowed types exist: `int`, `str`, `bytes`, `list`, `dict`, `bool`, `None`
+- Dict keys are `str`
+- No pre-encoded CBOR blobs are inserted as `bytes` unless the field is explicitly defined as `bstr` by schema
+
+For this PoC, treat `bytes` as permitted only for fields explicitly listed as `bstr` in the artefact being encoded (e.g., `intent_hash`, `session_id`, `exporter_hash`, `signature`). All other fields MUST be non-bytes types.
+
+This prevents silent CBOR-inside-CBOR reintroduction and accidental float encoding.
+
+**JCS Canonical JSON** (for Epoch Clock only):
+
+- Sorted keys
+- No whitespace
+- No trailing commas
+- UTF-8 bytes
+
+Python's `json.dumps(obj, sort_keys=True, separators=(',', ':'))` produces JCS-equivalent output for the simple types used in ticks.
+
+---
+
+## Stateful Execution Semantics (Must Implement)
+
+Maintain in-memory registries:
+
+```
+consumed_decision_ids: set
+burned_intent_hashes: set
+```
+
+Rules:
+
+- If `decision_id` already consumed → DENY `E_OUTCOME_REPLAYED`
+- After successful execution:
+  - Add `decision_id` to `consumed_decision_ids`
+  - Add `intent_hash` to `burned_intent_hashes`
+- If `intent_hash` already burned → DENY `E_BURNED_INTENT`
+- Expiry rule:
+  - If current tick time > `outcome.expiry_tick` → DENY `E_OUTCOME_EXPIRED`
+
+These must be demonstrated explicitly in output.
+
+**Canonical Refusal Codes (exhaustive for this PoC):**
+
+```
+E_TICK_TAMPERED          — tick signature verification failed (modified after signing)
+E_TICK_ROLLBACK          — tick t ≤ last accepted t (monotonicity violation)
+```
+
+`E_TICK_TAMPERED` is used for **any** tick signature verification failure in this PoC (including post-sign modification, wrong key, wrong algorithm), to keep the refusal surface minimal. Do not invent separate codes for different signature failure reasons.
+
+```
+E_TICK_UNAVAILABLE       — no tick provided for evaluation
+E_POLICY_UNAVAILABLE     — no policy evidence provided for evaluation
+E_OUTCOME_MISSING        — signing attempted without EnforcementOutcome
+E_OUTCOME_EXPIRED        — current tick t > outcome.expiry_tick
+E_OUTCOME_REPLAYED       — decision_id already consumed
+E_BURNED_INTENT          — intent_hash already burned
+```
+
+Only these refusal codes may appear in this proof-of-concept. Do not invent additional codes.
+
+---
+
+## Required Demonstrations
+
+### Section 1: Epoch Clock
+
+- Create a tick with `t` = current unix time
+- Sign with Ed25519 (stand-in for ML-DSA-65)
+- Use domain separation: `SHAKE256-256("EpochClock-Tick-v2" || JCS(tick_body))`
+- Verify signature
+- Verify monotonicity (new tick `t` > last accepted `t`)
+- Show rejection for a **tampered** tick (modify `t` after signing → signature fails with `E_TICK_TAMPERED`)
+- Show rejection for a **rollback** tick (create a **validly signed** tick with `t` ≤ last accepted `t` → monotonicity fails with `E_TICK_ROLLBACK`)
+
+**These are two distinct failure modes.** Tampering tests cryptographic integrity. Rollback tests temporal monotonicity. Both must be demonstrated separately.
+
+### Section 2: PQSF Determinism
+
+- Create a ConsentProof (or simplified consent-like artefact)
+- Encode canonically as CBOR using the correct `canonical_cbor()` function (single-pass, no nesting)
+- Encode the **same object** twice
+- Assert identical bytes (positive determinism test)
+- Hash with SHAKE256-256
+- Print resulting hash
+- **Negative determinism test:** Modify one field (e.g., flip one byte in `session_id`), re-encode, and assert the SHAKE256-256 hash **changes**. This proves the hash actually binds content, not just encoding structure.
+
+### Section 3: PQSEC Ternary Predicate Evaluation
+
+Implement minimal evaluator:
+
+Predicates:
+
+- `valid_tick`
+- `valid_consent`
+- `valid_policy`
+
+States:
+
+- `TRUE`
+- `FALSE`
+- `UNAVAILABLE`
+
+Rules:
+
+- All TRUE → ALLOW
+- Any FALSE → DENY
+- Any UNAVAILABLE when `operation_class` is `"Authoritative"` → DENY (fail-closed)
+
+Must demonstrate:
+
+- Missing tick → UNAVAILABLE → DENY
+- Missing policy → UNAVAILABLE → DENY
+- All TRUE → ALLOW
+
+**Policy evidence (PoC minimal):** A dict `{"policy_id": tstr, "issued_tick": uint, "expiry_tick": uint}`. `valid_policy` is TRUE iff policy is present and `current_tick.t ≤ policy["expiry_tick"]`. Policy `issued_tick` and `expiry_tick` are unix seconds in the `EpochTick.t` domain (consistent with the global Tick Domain Rule). This keeps the demonstration concrete without pulling in full PQHD/BPC complexity.
+
+UNAVAILABLE must fail closed visibly.
+
+**FAIL_CLOSED_LOCKED rule:** If a rollback tick is observed (valid signature but `t` ≤ last accepted `t`), the system enters LOCKED state. While LOCKED, all subsequent Authoritative operations return `FAIL_CLOSED_LOCKED` until a fresh, monotonically advancing tick is accepted. This gives FAIL_CLOSED_LOCKED a concrete, deterministic trigger in the PoC rather than leaving it as an undefined placeholder.
+
+**LOCKED recovery:** After demonstrating rollback → LOCKED, immediately demonstrate recovery by accepting a fresh monotonically advancing tick, which exits LOCKED state. This ensures Sections 4–6 can proceed cleanly. LOCKED affects only `operation_class == "Authoritative"` — it does not block NonAuthoritative evaluations.
+
+**CRITICAL:** The evaluator function needs access to a valid `verify_key` to check tick signatures. When testing UNAVAILABLE predicates, pass the verify_key to the evaluator — the tick being None is what makes it UNAVAILABLE, not a missing verify_key. If your evaluator calls a tick verification function internally, ensure the verify_key is always available. A None verify_key that causes a crash is a bug, not a demonstration.
+
+### Section 4: Capability–Authority Decoupling
+
+Show that:
+
+- Possessing signing key alone → refused
+- Key + expired outcome → refused (`E_OUTCOME_EXPIRED`)
+- Key + valid EnforcementOutcome bound to matching `intent_hash` → signature produced
+
+Signing must require:
+
+- Valid key
+- ALLOW decision
+- Matching `intent_hash`
+- Not expired (current tick ≤ `expiry_tick`)
+- `decision_id` unused
+- `intent_hash` not burned
+
+**CRITICAL — State isolation:** This section must create its own EnforcementOutcome(s) with unique `decision_id` values. If the successful signing demo consumes a `decision_id`, that exact outcome cannot be reused in Section 5. **Plan ahead:** either:
+
+(a) Do NOT consume the `decision_id` / burn the `intent_hash` in this section (just demonstrate signing produces output), OR
+(b) Use a **different** intent and outcome than what Section 5 will use.
+
+The simplest correct approach: Section 4 demonstrates that signing **checks** are enforced (key-only refused, expired refused, valid accepted). Section 5 uses a **fresh** intent, fresh outcome, and fresh `decision_id` to demonstrate execution binding and burn semantics.
+
+**Section isolation rule:** Section 4 MUST NOT modify `consumed_decision_ids` or `burned_intent_hashes`. Section 5 MUST demonstrate actual state mutation (consuming decision_ids and burning intent_hashes).
+
+### Section 5: Execution Binding
+
+**This section requires its own fresh intent and fresh PQSEC outcome.** Do not reuse the outcome from Section 4.
+
+Demonstrate:
+
+- Create a fresh intent with a new `intent_hash`
+- Obtain a fresh ALLOW outcome with a new `decision_id` bound to this `intent_hash`
+- **First execution:** succeeds, consumes `decision_id`, burns `intent_hash`
+- **Replay attempt** (same `decision_id`): → `E_OUTCOME_REPLAYED`
+- **Burned intent reuse** (same `intent_hash`, **different** `decision_id`): → `E_BURNED_INTENT`
+
+**CRITICAL — Demonstrating burn semantics requires TWO different outcomes:**
+
+1. `outcome_A` with `decision_id = "exec-outcome-1"` bound to `intent_hash_X` — used for the first execution.
+2. `outcome_B` with `decision_id = "exec-outcome-2"` bound to the **same** `intent_hash_X` — used to demonstrate that even a fresh outcome is refused because the intent was already burned.
+
+If you only have one outcome, the replay check (`E_OUTCOME_REPLAYED`) will fire before the burn check (`E_BURNED_INTENT`) is ever reached. You need a fresh `decision_id` to get past the replay guard and hit the burn guard.
+
+### Section 6: SEAL Execution State Machine
+
+Simulate execution state transitions:
+
+- PENDING → SUBMITTED → CONFIRMED (success path)
+- PENDING → SUBMITTED → FAILED (failure path)
+- Show: FAILED requires fresh PQSEC ALLOW for recovery (FAILED → AUTHORIZED_PUBLIC requires explicit authorization)
+- Show: ambiguity defaults to FAILED
+
+Implement as a simple state machine class with:
+
+```python
+class ExecutionStateMachine:
+    VALID_TRANSITIONS = {
+        "PENDING": ["SUBMITTED"],
+        "SUBMITTED": ["CONFIRMED", "FAILED"],
+        "FAILED": ["AUTHORIZED_PUBLIC"],
+    }
+```
+
+Explicitly define in code and comments:
+
+> "Explicit authorization required for recovery" = A new PQSEC ALLOW decision for a new intent or recovery-class operation. Automatic retry, implicit resumption, and unattended recovery are prohibited.
+
+**No automatic renewal:** No automatic renewal or extension of EnforcementOutcome is permitted. Recovery in Section 6 MUST require explicit construction of a new ALLOW outcome — not reuse of an existing one, not auto-generation, not implicit resumption.
+
+---
+
+## Output Formatting Rules (Strict)
+
+All output must be readable as a narrative.
+
+Use exact markers:
+
+Success:
+```
+✓ OK — <reason>
+```
+
+Failure:
+```
+✗ REFUSED <decision> <refusal_code> — <reason>
+```
+
+When `decision` is `FAIL_CLOSED_LOCKED`, still include a refusal code (use the triggering code, e.g., `E_TICK_ROLLBACK` for lockout). This keeps log output uniform across all refusal types.
+
+Use clear section headers like:
+
+```
+═══════════════════════════════════════════
+  PQ Ecosystem — Proof of Concept
+  "Nothing grants authority. Everything produces evidence.
+   PQSEC refuses or does not refuse."
+═══════════════════════════════════════════
+```
+
+Each section must clearly label the corresponding specification.
+
+---
+
+## Final Summary Section (Required)
+
+Print:
+
+- Last accepted tick time
+- Number of consumed `decision_id`s
+- Number of burned `intent_hash`es
+
+---
+
+## Dependencies
+
+Allowed:
+
+- `pynacl` (Ed25519 only)
+- `cbor2`
+- Python stdlib (`hashlib`, `json`, `base64`, `os`, `time`, `collections`, etc.)
+
+Install note in docstring:
+
+```
+pip install pynacl cbor2
+```
+
+---
+
+## Prohibited
+
+- No broad `try/except Exception`
+- No hidden failures
+- No suppressed errors
+- No auto-retry logic
+- No implicit state transitions
+- No extra rejection codes beyond those demonstrated
+- No production-grade abstractions
+- No `cbor2.dumps()` called on individual values then wrapped in another `cbor2.dumps()` (this produces CBOR-inside-CBOR)
+- No calling any verification function with `None` where a key or required parameter is expected
+- No automatic renewal or extension of EnforcementOutcome validity
+- No using `time.time()` for enforcement decisions (use verified tick `t` values only)
+
+All refusals must be explicit control-flow decisions.
+
+---
+
+## What This Is
+
+- A minimal architectural proof
+- A runnable security model demonstration
+- A 5-minute executable understanding of the PQ ecosystem
+
+## What This Is Not
+
+- Not a reference implementation
+- Not production code
+- Not comprehensive
+- Not covering all 13 specifications
+
+---
+
+Produce the complete `pq_hello.py` file.
+Do not explain it. Return only the full Python source code.
