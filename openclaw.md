@@ -617,9 +617,36 @@ Agent security is one application of the PQ enforcement architecture. The same d
 
 ---
 
-## Appendix A: Specification Links and Reading Order
+## Appendix A: Specification Repository Directory
 
-All specifications are available in the PQ ecosystem repository. The following reading order is recommended for agents and implementers.
+All specifications are open source under Apache License 2.0 and available as standalone repositories. Each repository contains the complete specification text, structured for independent adoption and discovery.
+
+**Ecosystem hub:** [github.com/rosieRRRRR/pq-ecosystem](https://github.com/rosieRRRRR/pq-ecosystem)
+
+| Specification | Repository | Role |
+|--------------|------------|------|
+| PQ Ecosystem | [pq-ecosystem](https://github.com/rosieRRRRR/pq-ecosystem) | Ecosystem hub, companion documents, dependency graph |
+| PQSEC | [PQSEC](https://github.com/rosieRRRRR/PQSEC) | Enforcement core: ternary predicates, authority boundaries, EnforcementOutcome |
+| PQSF | [pqsf](https://github.com/rosieRRRRR/pqsf) | Canonical encoding, CryptoSuiteProfile, session binding, EBT |
+| Epoch Clock | [epoch-clock](https://github.com/rosieRRRRR/epoch-clock) | Bitcoin-anchored verifiable time authority |
+| PQAI | [pqai](https://github.com/rosieRRRRR/pqai) | AI governance: model identity, drift detection, tool governance, supervision |
+| PQHD | [pqhd](https://github.com/rosieRRRRR/pqhd) | Deterministic Bitcoin custody, delegation, quorum |
+| SEAL | [SEAL](https://github.com/rosieRRRRR/SEAL) | Execution-layer protection: sealed transaction delivery |
+| BPC | [BPC](https://github.com/rosieRRRRR/BPC) | Bitcoin Pre-Contracts: authorisation-before-construction |
+| ZEB | [ZEB](https://github.com/rosieRRRRR/ZEB) | Zero-Exposure Broadcast: mempool-resilient execution |
+| PQEA | [pqea](https://github.com/rosieRRRRR/pqea) | Embodied agent governance: operation envelopes, execution leases |
+| PQPS | [pqps](https://github.com/rosieRRRRR/pqps) | Bilateral human-AI relational persistence |
+| Neural Lock | [neural-lock](https://github.com/rosieRRRRR/neural-lock) | Biometric governance: coercion and impairment detection |
+| PQHR | [pqhr](https://github.com/rosieRRRRR/pqhr) | Human-readable policy rendering |
+| PQ Gateway | [pq-gateway](https://github.com/rosieRRRRR/pq-gateway) | Sovereign AI governance product layer |
+| PQAA | [pqaa](https://github.com/rosieRRRRR/pqaa) | Platform attestation adapter: Secure Enclave, TPM, StrongBox |
+| PQPR | [pqpr](https://github.com/rosieRRRRR/pqpr) | Proof-of-Reference: AI output verification against source material |
+
+---
+
+## Appendix B: Reading Order
+
+The following reading order is recommended for agents and implementers.
 
 | Priority | Document | What You Learn |
 |----------|----------|----------------|
@@ -643,7 +670,7 @@ All specifications are available in the PQ ecosystem repository. The following r
 
 ---
 
-## Appendix B: PQ Ecosystem Structural Invariants
+## Appendix C: PQ Ecosystem Structural Invariants
 
 This appendix defines the cross-specification structural invariants that must hold for any conformant implementation of the PQ Security Ecosystem. These invariants are mechanical guarantees derived from normative clauses in the core specifications. They are verification targets, not aspirational properties.
 
